@@ -1,0 +1,9 @@
+ctransformers
+sentence-transformers
+langchain
+flask
+pypdf
+-e .
+faiss-cpu
+jupyter
+langchain_community
