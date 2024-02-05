@@ -7,3 +7,5 @@ pypdf
 faiss-cpu
 jupyter
 langchain_community
+sentence-transformers
+accelerate
