@@ -10,10 +10,17 @@ body,html{
 	margin-top: auto;
 	margin-bottom: auto;
 }
-.card{
-	height: 500px;
-	border-radius: 15px !important;
-	background-color: rgba(0,0,0,0.4) !important;
+.card {
+    height: 90vh;
+    width: 1100px;
+    border-radius: 15px !important;
+    background-color: rgba(0, 0, 0, 0.4) !important;
+    
+    /* Center the card horizontally and vertically */
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }
 .contacts_body{
 	padding:  0.75rem 0 !important;

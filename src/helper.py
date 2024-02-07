@@ -1,6 +1,6 @@
 from langchain.document_loaders.csv_loader import CSVLoader
 from langchain_community.document_loaders.directory import DirectoryLoader
-from langchain.document_loaders import PyPDFLoader, DirectoryLoader
+from langchain_community.document_loaders import DirectoryLoader, PyPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.embeddings import HuggingFaceEmbeddings
 
