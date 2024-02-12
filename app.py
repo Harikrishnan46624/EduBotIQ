@@ -26,9 +26,9 @@ PROMPT = PromptTemplate(template=prompt_template, input_variables=["context", "q
 chain_type_kwargs = {"prompt": PROMPT}
 
 
-llm = CTransformers(model=r"E:\projects\EduBotIQ\tiny_model\third model\tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf",
+llm = CTransformers(model=r"E:\projects\EduBotIQ\tiny_model\tinyllama-1.1b-chat-v1.0.Q8_0.gguf",
                     model_type="llama",
-                    config={'max_new_tokens': 512, 'temperature': 0.5})
+                    config={'max_new_tokens': 512, 'temperature': 0.3})
 
 
 qa = RetrievalQA.from_chain_type(
