@@ -165,3 +165,4 @@ venv/*
 model/*
 tiny_model/*
 .env
+database/*

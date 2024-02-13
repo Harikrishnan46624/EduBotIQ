@@ -1,11 +1,11 @@
 from flask import Flask, render_template, jsonify, request
 from src.helper import download_hugging_face_embeddings
-from langchain_community.vectorstores import FAISS
+# from langchain_community.vectorstores import FAISS
 from langchain.prompts import PromptTemplate
 from langchain.chains import RetrievalQA
 from src.prompt import *
 from langchain_community.llms import CTransformers
-import os
+from langchain_community.vectorstores import Chroma
 
 
 app = Flask(__name__)
@@ -14,11 +14,16 @@ app = Flask(__name__)
 embeddings = download_hugging_face_embeddings()
 
 
-DB_FAISS_PATH = 'vectorstore/db_faiss'
+# DB_FAISS_PATH = 'vectorstore/db_faiss'
 
 
-# Load the FAISS database with the embeddings
-db = FAISS.load_local("vectorstore/db_faiss", embeddings=embeddings)
+# # Load the FAISS database with the embeddings
+# db = FAISS.load_local("vectorstore/db_faiss", embeddings=embeddings)
+
+
+directory = 'database'
+
+db = Chroma(persist_directory=directory, embedding_function=embeddings)
 
 
 PROMPT = PromptTemplate(template=prompt_template, input_variables=["context", "question"])
@@ -34,10 +39,10 @@ llm = CTransformers(model=r"E:\projects\EduBotIQ\tiny_model\tinyllama-1.1b-chat-
 
 qa = RetrievalQA.from_chain_type(
     llm=llm, 
-    chain_type="stuff", 
-    retriever=db.as_retriever(search_kwargs={'k': 2}),
-    return_source_documents=True, 
-    chain_type_kwargs=chain_type_kwargs)
+    chain_type = "stuff", 
+    retriever = db.as_retriever(search_kwargs={'k': 2}),
+    return_source_documents = True, 
+    chain_type_kwargs = chain_type_kwargs)
 
 
 @app.route('/')
@@ -50,7 +55,7 @@ def chat():
     msg = request.form["msg"]
     input = msg
     print(input)
-    result=qa({"query": input})
+    result = qa({"query": input})
     print("Response : ", result["result"])
     return str(result["result"])
 

@@ -9,3 +9,5 @@ jupyter
 langchain_community
 sentence-transformers
 accelerate
+audio_recorder_streamlit
+chromadb

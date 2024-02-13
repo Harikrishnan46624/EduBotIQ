@@ -4,6 +4,10 @@ from langchain.chains import RetrievalQA
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
 from langchain_community.llms import CTransformers
+from audio_recorder_streamlit import audio_recorder
+import requests
+import os
+
 
 # Download embedding model
 def download_hugging_face_embeddings():
@@ -58,43 +62,46 @@ qa = RetrievalQA.from_chain_type(
     chain_type_kwargs=chain_type_kwargs
 )
 
-# Chat history to store conversation
-chat_history = []
+
 
 # Streamlit app
-st.title("Chatbot with History")
+st.title("EduBotIQ")
 
 # Using Streamlit's st.form for a more reactive approach
 with st.form("user_input_form"):
     # User input
-    user_input = st.text_input("Input Prompt:")
+    text_input = st.text_input("Input Prompt:")
+
+    audio_input = audio_recorder()
 
     # Submit button
     submit_button = st.form_submit_button("Submit")
 
-# Process user input and update chat history when the form is submitted
 if submit_button:
-    # Add user input to chat history
-    chat_history.append({"user": user_input, "role": "user"})
-    print("Question: ", user_input)
+    print("User: ", text_input)
+    result = qa({"query": text_input})
+    print("Response : ", result["result"])
+    response = str(result["result"])
+    st.write(response)
 
-    # Truncate user input to fit within the maximum context length
-    user_input = user_input[:512]
+API_URL = os.getenv("API_URL")
+headers = os.getenv("headers")
 
-    # Get bot's response
-    result = qa({"query": user_input})
-    bot_response = result["result"]
-    print("Result: ", result)
 
-    # Add bot's response to chat history
-    chat_history.append({"bot": bot_response, "role": "bot"})
+def convert_audio_to_text(audio_data):
+    response = requests.post(API_URL, headers=headers, data=audio_data)
+    return response.json()['text']
 
-# Display chat history vertically
-st.text("Chat History:")
-for entry in chat_history:
-    if entry["role"] == "user":
-        st.text(f"User: {entry['user']}")
-    elif entry["role"] == "bot":
-        # Display bot's response in a paragraph format
-        st.write(f"Bot: {entry['bot']}")
 
+if audio_input is not None:
+    audio_file_path = "audio_data/audio.wav"
+    with open(audio_file_path, "wb") as audio_file:
+        audio_file.write(audio_input)
+
+    audio_to_text = convert_audio_to_text(audio_input)
+    print(audio_to_text)
+
+    input_text = audio_to_text
+    result = qa({"query": input_text})
+    response = str(result["result"])
+    st.write(response) 
