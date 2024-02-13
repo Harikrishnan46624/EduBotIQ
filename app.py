@@ -5,6 +5,7 @@ from langchain.prompts import PromptTemplate
 from langchain.chains import RetrievalQA
 from src.prompt import *
 from langchain_community.llms import CTransformers
+import os
 
 
 app = Flask(__name__)
@@ -52,7 +53,6 @@ def chat():
     result=qa({"query": input})
     print("Response : ", result["result"])
     return str(result["result"])
-
 
 
 if __name__ == '__main__':
