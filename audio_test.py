@@ -18,26 +18,35 @@
 
 
 import requests
+import os
+import json
 
 API_URL = "https://api-inference.huggingface.co/models/openai/whisper-large-v2"
-headers = {"Authorization": "Bearer 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"}
+headers_key = "headers"
+headers_value = os.getenv(headers_key)
+
+# Check if headers_value is None and provide a default value if needed
+headers = json.loads(headers_value) if headers_value else {}
 
 def query(filename):
     with open(filename, "rb") as f:
         data = f.read()
     response = requests.post(API_URL, headers=headers, data=data)
-    return response.json()['text']
+    
+    try:
+        response_json = response.json()
+        print(response_json)  # Print the entire JSON response for debugging
+        return response_json['text']
+    except KeyError:
+        print("Error: 'text' key not found in the JSON response.")
+        return None
 
-# output = query("sample1.flac")
-# print(output)
+output = query("Recording.m4a")
+if output:
+    print(output)
+else:
+    print("Failed to get the output.")
 
-def convert_audio_to_text(audio_file_path):
-    # Implement audio-to-text conversion logic using a library like SpeechRecognition
-    # For example:
-    # import speech_recognition as sr
-    # recognizer = sr.Recognizer()
-    # with sr.AudioFile(audio_file_path) as source:
-    #    audio_data = recognizer.record(source)
-    #    text = recognizer.recognize_google(audio_data)
-    #    return text
-    pass
+
+
+

@@ -1,6 +1,6 @@
 from flask import Flask, render_template, jsonify, request
 from src.helper import download_hugging_face_embeddings
-# from langchain_community.vectorstores import FAISS
+from langchain_community.vectorstores import FAISS
 from langchain.prompts import PromptTemplate
 from langchain.chains import RetrievalQA
 from src.prompt import *
@@ -14,16 +14,16 @@ app = Flask(__name__)
 embeddings = download_hugging_face_embeddings()
 
 
-# DB_FAISS_PATH = 'vectorstore/db_faiss'
+DB_FAISS_PATH = 'vectorstore/db_faiss'
 
 
-# # Load the FAISS database with the embeddings
-# db = FAISS.load_local("vectorstore/db_faiss", embeddings=embeddings)
+# Load the FAISS database with the embeddings
+db = FAISS.load_local("vectorstore/db_faiss", embeddings=embeddings)
 
 
-directory = 'database'
+# directory = 'database'
 
-db = Chroma(persist_directory=directory, embedding_function=embeddings)
+# db = Chroma(persist_directory=directory, embedding_function=embeddings)
 
 
 PROMPT = PromptTemplate(template=prompt_template, input_variables=["context", "question"])
@@ -34,7 +34,7 @@ chain_type_kwargs = {"prompt": PROMPT}
 
 llm = CTransformers(model=r"E:\projects\EduBotIQ\tiny_model\tinyllama-1.1b-chat-v1.0.Q8_0.gguf",
                     model_type="llama",
-                    config={'max_new_tokens': 512, 'temperature': 0.3})
+                    config={'max_new_tokens': 256, 'temperature': 0.3})
 
 
 qa = RetrievalQA.from_chain_type(
