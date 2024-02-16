@@ -13,9 +13,24 @@
 # """
 
 
+# prompt_template = """
+# Use the following pieces of information to answer the student's question.
+# If you don't know the answer, mention that the question is beyond the scope of your expertise.
+
+#History :{history}
+# Context: {context}
+# Question: {question}
+
+# Only return the answers related to artificial intelligence below and nothing else.
+# Helpful answer:
+# """
+
+
+
+
 prompt_template = """
 Use the following pieces of information to answer the student's question.
-If you don't know the answer, mention that the question is beyond the scope of your expertise.
+If you don't know the answer or if the question is outside the scope of artificial intelligence, mention that the question is beyond the scope of your expertise.
 
 Context: {context}
 Question: {question}

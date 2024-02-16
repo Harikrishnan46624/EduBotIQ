@@ -12,8 +12,7 @@
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 		<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css')}}"/>
 	</head>
-	
-	
+
 	<body>
 		<div class="container-fluid h-100">
 			<div class="row justify-content-center h-100">		
@@ -78,49 +77,59 @@
 			});
 		</script>
         
-
 		<script>
-			// Handle audio button click
-			$("#audioBtn").on("click", function () {
-		startSpeechRecognition();
-		});
-
-
-// Function to start speech recognition
-// Function to start speech recognition
-function startSpeechRecognition() {
-    const recognition = new webkitSpeechRecognition() || new SpeechRecognition();
-    recognition.lang = 'en-US';
-
-    recognition.onresult = function (event) {
-        const transcript = event.results[0][0].transcript;
-        const date = new Date();
-        const hour = date.getHours();
-        const minute = date.getMinutes();
-        const str_time = hour + ":" + minute;
-
-        // Append user's spoken message to the chat
-        var userHtml = '<div class="d-flex justify-content-end mb-4"><div class="msg_cotainer_send">' + transcript + '<span class="msg_time_send">' + str_time + '</span></div><div class="img_cont_msg"><img src="https://i.ibb.co/d5b84Xw/Untitled-design.png" class="rounded-circle user_img_msg"></div></div>';
-        $("#messageFormeight").append(userHtml);
-
-        // Send the spoken message to the server and update the chat with the response
-        $.ajax({
-            data: {
-                msg: transcript,
-            },
-            type: "POST",
-            url: "/get",
-        }).done(function (data) {
-            var botHtml = '<div class="d-flex justify-content-start mb-4"><div class="img_cont_msg"><img src="https://i.ibb.co/fSNP7Rz/icons8-chatgpt-512.png" class="rounded-circle user_img_msg"></div><div class="msg_cotainer">' + data + '<span class="msg_time">' + str_time + '</span></div></div>';
-            $("#messageFormeight").append($.parseHTML(botHtml));
-        });
-    };
-
-    recognition.start();
-}
-
-	</script>
-
-
+			var isRecording = false;
+		
+			// Handle audio button mousedown event to start recording
+			$("#audioBtn").on("mousedown", function () {
+				isRecording = true;
+				startSpeechRecognition();
+				// Add a visual indication of the active state (e.g., change button color)
+				$(this).addClass("active");
+			});
+		
+			// Handle audio button mouseup event to stop recording
+			$("#audioBtn").on("mouseup", function () {
+				isRecording = false;
+				// Add a visual indication of the inactive state (e.g., revert button color)
+				$(this).removeClass("active");
+			});
+		
+			// Function to start speech recognition
+			function startSpeechRecognition() {
+				const recognition = new webkitSpeechRecognition() || new SpeechRecognition();
+				recognition.lang = 'en-US';
+		
+				recognition.onresult = function (event) {
+					const transcript = event.results[0][0].transcript;
+					const date = new Date();
+					const hour = date.getHours();
+					const minute = date.getMinutes();
+					const str_time = hour + ":" + minute;
+		
+					// Append user's spoken message to the chat
+					var userHtml = '<div class="d-flex justify-content-end mb-4"><div class="msg_cotainer_send">' + transcript + '<span class="msg_time_send">' + str_time + '</span></div><div class="img_cont_msg"><img src="https://i.ibb.co/d5b84Xw/Untitled-design.png" class="rounded-circle user_img_msg"></div></div>';
+					$("#messageFormeight").append(userHtml);
+		
+					// Send the spoken message to the server and update the chat with the response
+					$.ajax({
+						data: {
+							msg: transcript,
+						},
+						type: "POST",
+						url: "/get",
+					}).done(function (data) {
+						var botHtml = '<div class="d-flex justify-content-start mb-4"><div class="img_cont_msg"><img src="https://i.ibb.co/fSNP7Rz/icons8-chatgpt-512.png" class="rounded-circle user_img_msg"></div><div class="msg_cotainer">' + data + '<span class="msg_time">' + str_time + '</span></div></div>';
+						$("#messageFormeight").append($.parseHTML(botHtml));
+					});
+				};
+		
+				// Start recognition only if the button is still being held down
+				if (isRecording) {
+					recognition.start();
+				}
+			}
+		</script>
+		
     </body>
 </html>
