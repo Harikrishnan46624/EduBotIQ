@@ -17,7 +17,7 @@
 # Use the following pieces of information to answer the student's question.
 # If you don't know the answer, mention that the question is beyond the scope of your expertise.
 
-#History :{history}
+# History :{history}
 # Context: {context}
 # Question: {question}
 

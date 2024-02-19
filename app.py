@@ -47,7 +47,8 @@ chain_type_kwargs = {"prompt": PROMPT}
 
 
 #Load llmm model tiny lamma model
-llm = CTransformers(model=r"E:\projects\EduBotIQ\tiny_model\tinyllama-1.1b-chat-v1.0.Q8_0.gguf",
+model_path = r"E:\projects\EduBotIQ\tiny_model\tinyllama-1.1b-chat-v1.0.Q8_0.gguf"
+llm = CTransformers(model=model_path,
                     model_type="llama",
                     config={'max_new_tokens': 256, 'temperature': 0.3})
 
@@ -60,6 +61,24 @@ qa = RetrievalQA.from_chain_type(
     return_source_documents = True, 
     chain_type_kwargs = chain_type_kwargs)
 
+
+# from langchain.memory import ConversationBufferMemory
+
+# prompt = PromptTemplate(input_variables=["history", "context", "question"], template=prompt_template,)
+
+# memory = ConversationBufferMemory(memory_key="history", input_key="question")
+
+# chain_type_kwargs = {"verbose": True, "prompt": prompt, "memory":memory}
+
+# retriever = db.as_retriever(search_kwargs={'k': 2})
+
+# qa = RetrievalQA.from_chain_type(
+#     llm=llm,
+#     chain_type='stuff',
+#     retriever=retriever,
+#     verbose=True,
+#     chain_type_kwargs=chain_type_kwargs
+# )
 
 
 @app.route('/')
