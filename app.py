@@ -46,11 +46,12 @@ PROMPT = PromptTemplate(template=prompt_template, input_variables=["context", "q
 chain_type_kwargs = {"prompt": PROMPT}
 
 
-#Load llmm model tiny lamma model
+##Load llmm model tiny lamma model
 model_path = r"E:\projects\EduBotIQ\tiny_model\tinyllama-1.1b-chat-v1.0.Q8_0.gguf"
 llm = CTransformers(model=model_path,
                     model_type="llama",
                     config={'max_new_tokens': 256, 'temperature': 0.3})
+
 
 
 #Setup RetrievalQA
