@@ -163,6 +163,6 @@ cython_debug/
 
 venv/*
 model/*
-tiny_model/*
+model/*
 .env
 database/*

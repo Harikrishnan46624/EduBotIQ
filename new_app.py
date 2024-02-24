@@ -4,13 +4,17 @@ from flask import Flask, render_template, request
 from src.helper import download_hugging_face_embeddings
 from langchain_community.vectorstores import FAISS
 from langchain.prompts import PromptTemplate
-from langchain.chains import RetrievalQA
-from src.prompt import *
 from langchain_community.llms import HuggingFaceHub
+from langchain.chains import LLMChain
+from dotenv import load_dotenv
+import langchain
+load_dotenv()
+import re
 
 
 
 app = Flask(__name__)
+
 
 log_directory = 'logs'
 os.makedirs(log_directory, exist_ok=True)
@@ -34,26 +38,38 @@ DB_FAISS_PATH = 'vectorstore/db_faiss'
 db = FAISS.load_local("vectorstore/db_faiss", embeddings=embeddings)
 
 
-PROMPT = PromptTemplate(template=prompt_template, input_variables=["context", "question"])
+
+def chain(input:str):
+    model_id = 'Harikrishnan46624/finetuned_llama2-1.1b-chat'
+    llm = HuggingFaceHub(huggingfacehub_api_token=os.getenv('HuggingFaceAPI'),
+                        repo_id=model_id,
+                        model_kwargs={'max_new_tokens': 256, 'temperature': 0.3})
+
+    prompt_template = """
+    Use the following pieces of information to answer the student's question.
+    If you don't know the answer or if the question is outside the scope of artificial intelligence, mention that the question is beyond the scope of your expertise.
+
+    Question: {question}
 
 
-chain_type_kwargs = {"prompt": PROMPT}
+    Only return the answers related to artificial intelligence below and nothing else.
+    Helpful answer:
+    """
 
+    PROMPT = PromptTemplate(template=prompt_template, input_variables=["question"])
 
-model_id = 'Harikrishnan46624/finetuned_llama2-1.1b-chat'
-llm = HuggingFaceHub(huggingfacehub_api_token='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',
-                     repo_id=model_id,
-                     model_kwargs={'max_new_tokens': 256, 'temperature': 0.3})
+    chain = LLMChain(llm=llm,prompt=PROMPT,verbose=False)
+    answer = chain.run(input)
+    
 
+    # # Extract only the answer from the result string using regex
+    # answer_pattern = re.compile(r'Answer: (.+)', re.DOTALL)
+    # match = answer_pattern.search(result_string)
 
+    # answer = match.group(1) if match else ''
 
-#Setup RetrievalQA
-qa = RetrievalQA.from_chain_type(
-    llm=llm, 
-    chain_type = "stuff", 
-    retriever = db.as_retriever(search_kwargs={'k': 2}),
-    return_source_documents = True, 
-    chain_type_kwargs = chain_type_kwargs)
+    return answer
+ 
 
 
 @app.route('/')
@@ -63,25 +79,24 @@ def index():
 
 @app.route("/get", methods=["GET", "POST"])
 def chat():
-    input_msg = request.form["msg"]
-    
-    logging.info(f"User Input: {input_msg}")
-    print("User: ", input_msg)
+    try:
+        input_message = request.form["msg"]
+        logging.info(f"User Input: {input_message}")
 
-    result = qa({"query": input_msg})
-    print("Full Result:", result)
-    
-    model_response = result.get("result", "")
-    
-    # Assuming the prompt is at the beginning of the response
-    prompt_length = len(PROMPT.render({"context": "", "question": ""}))
-    extracted_response = model_response[prompt_length:].replace('\n', ' ')
+        print("User: ", input_message)
+        
+        langchain.verbose = True
 
-    print("Response: ", extracted_response)
-    logging.info(f"Response: {extracted_response}")
-    
-    # Return the extracted response directly
-    return str(extracted_response)
+        result = chain(str(input_message))
+
+        print("Response: ", result)
+        logging.info(f"Response: {result}")
+
+        return str(result)
+
+    except Exception as e:
+        logging.exception(f"An error occurred: {str(e)}")
+        return "An error occurred."
 
 
 

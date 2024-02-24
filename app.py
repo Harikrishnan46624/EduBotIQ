@@ -7,7 +7,7 @@ from langchain.prompts import PromptTemplate
 from langchain.chains import RetrievalQA
 from src.prompt import *
 from langchain_community.llms import CTransformers
-from langchain_community.vectorstores import Chroma
+# from langchain_community.vectorstores import Chroma
 
 
 
@@ -47,10 +47,10 @@ chain_type_kwargs = {"prompt": PROMPT}
 
 
 ##Load llmm model tiny lamma model
-model_path = r"E:\projects\EduBotIQ\tiny_model\tinyllama-1.1b-chat-v1.0.Q8_0.gguf"
+model_path = r"E:\projects\EduBotIQ\model\tinyllama-1.1b-chat-v1.0.Q8_0.gguf"
 llm = CTransformers(model=model_path,
                     model_type="llama",
-                    config={'max_new_tokens': 256, 'temperature': 0.3})
+                    config={'max_new_tokens': 350, 'temperature': 0.3})
 
 
 
@@ -60,6 +60,7 @@ qa = RetrievalQA.from_chain_type(
     chain_type = "stuff", 
     retriever = db.as_retriever(search_kwargs={'k': 2}),
     return_source_documents = True, 
+    verbose=False,
     chain_type_kwargs = chain_type_kwargs)
 
 
@@ -89,15 +90,22 @@ def index():
 
 @app.route("/get", methods=["GET", "POST"])
 def chat():
-    input = request.form["msg"]
-    
-    logging.info(f"User Input: {input}")
-    print("User: ", input)
+    try:
+        input = request.form["msg"]
+        
+        logging.info(f"User Input: {input}")
+        print("User: ", input)
 
-    result = qa({"query": input})
-    print("Response: ", result["result"])
-    logging.info(f"Response: {result['result']}")
-    return str(result["result"])
+        result = qa({"query": input})
+        print("Response: ", result)
+        logging.info(f"Response: {result['result']}")
+
+
+        return str(result["result"])
+    
+    except Exception as e:
+        logging.exception(f"An error occurred: {str(e)}")
+        return "An error occurred."
 
 
 if __name__ == '__main__':
